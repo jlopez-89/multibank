@@ -41,7 +41,8 @@ Each event is mapped to its correct time bucket using the event timestamp—even
    - mvn test
  - To run to go to main/resources and execute
    - docker-compose up
- - To see if the service is working we can execute : 
+ - To see if the service is working we can execute :
+   - http://localhost:8080/swagger-ui/index.html#/Candles/getHistory
    - curl "http://localhost:8080/history?symbol=BTC-USD&interval=1m&from=$(($(date +%s)-300))&to=$(date +%s)" | jq
      - $(date +%s) calculate the current timestamp in seconds
      - $(date +%s)-300 calculate the current timestamp in seconds minus 5 seconds
@@ -59,3 +60,5 @@ Test Strategy Overview - 95% coverage
   - /history controller returning correct JSON and proper validation errors.
 -	Kafka Integration Tests
   - Full ingestion pipeline: Producer → Topic → Listener → Aggregation → Database (using Testcontainers + Awaitility).
+
+
