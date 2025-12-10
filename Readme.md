@@ -43,7 +43,7 @@ Each event is mapped to its correct time bucket using the event timestamp—even
    - docker-compose up
  - To see if the service is working we can execute :
    - http://localhost:8080/swagger-ui/index.html#/Candles/getHistory
-   - curl "http://localhost:8080/history?symbol=BTC-USD&interval=1m&from=$(($(date +%s)-300))&to=$(date +%s)" | jq
+   - curl "http://localhost:8080/api/v1/candles/history?symbol=BTC-USD&interval=1m&from=$(($(date +%s)-300))&to=$(date +%s)" | jq
      - $(date +%s) calculate the current timestamp in seconds
      - $(date +%s)-300 calculate the current timestamp in seconds minus 5 seconds
 

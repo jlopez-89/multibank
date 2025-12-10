@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/candles/history")
+@RequestMapping("/api/v1/candles/history")
 public class HistoryController implements HistoryApi {
 
     private final GetHistoryOperation candleService;
