@@ -1,9 +1,9 @@
 package com.multibank.candle.service;
 
 import com.multibank.candle.domain.BidAskEvent;
+import com.multibank.candle.repository.CandleRepository;
 import com.multibank.candle.repository.entity.CandleEntity;
 import com.multibank.candle.repository.entity.CandleId;
-import com.multibank.candle.repository.CandleRepository;
 import com.multibank.candle.utils.IntegrationTestConfig;
 import com.multibank.candle.utils.TestHelpers;
 import org.junit.jupiter.api.DisplayName;

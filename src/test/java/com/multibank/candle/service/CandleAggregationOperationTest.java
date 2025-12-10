@@ -17,8 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.multibank.candle.utils.IntegrationTestConfig.BTC_USD;
 import static com.multibank.candle.utils.TestHelpers.candle;
