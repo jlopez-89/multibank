@@ -1,0 +1,14 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      mode: never
+candle:
+  timeframes:
+    - name: MIN_1
+      code: "1m"
+      seconds: 60

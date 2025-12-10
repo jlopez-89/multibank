@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Multibank Postgres",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "Username": "multibank",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "multibank_db"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5434/multibank_db
+    username: multibank
+    password: multibank
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  kafka:
+    bootstrap-servers: "localhost:29092"
+    listener:
+      type: batch
+      ack-mode: MANUAL
+      concurrency: 3
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+    consumer:
+      group-id: candle-aggregator
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.multibank.candle.domain"
+
+    template:
+      default-topic: bid-ask-events
+
+app:
+  kafka:
+    bid-ask-topic: "bid-ask-events"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  health:
+    kafka:
+      enabled: true
+
+candle:
+  symbols:
+    BTC-USD: 100000.0
+    ETH-USD: 3000.0
+    XAU-USD: 130000.0
+  timeframes:
+    - name: SEC_1
+      code: "1s"
+      seconds: 1
+    - name: SEC_5
+      code: "5s"
+      seconds: 5
+    - name: MIN_1
+      code: "1m"
+      seconds: 60
+    - name: MIN_15
+      code: "15m"
+      seconds: 900
+    - name: HOUR_1
+      code: "1h"
+      seconds: 3600
