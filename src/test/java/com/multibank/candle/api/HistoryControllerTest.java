@@ -56,14 +56,13 @@ class HistoryControllerTest extends IntegrationTestConfig {
         // another timeframe → should not be returned
         var otherTf = candle(symbol, "5m", t2, 300.0, 310.0, 295.0, 305.0, 3L);
 
-        candleRepository.deleteAll();
         candleRepository.saveAll(List.of(c1, c2, c3, cOut, otherSymbol, otherTf));
 
         var from = base;
         var to = t3;
 
         // WHEN / THEN
-        mockMvc.perform(get("/history")
+        mockMvc.perform(get("/api/candles/history")
                         .param("symbol", symbol)
                         .param("interval", tf.getCode())  // "1m"
                         .param("from", String.valueOf(from))
@@ -96,7 +95,7 @@ class HistoryControllerTest extends IntegrationTestConfig {
         long to = 2_000_060L;
 
         // --- WHEN / THEN
-        mockMvc.perform(get("/history")
+        mockMvc.perform(get("/api/candles/history")
                         .param("symbol", BTC_USD)
                         .param("interval", tf.getCode())
                         .param("from", String.valueOf(from))
@@ -121,7 +120,7 @@ class HistoryControllerTest extends IntegrationTestConfig {
         long to = 1_000_060L;
 
         //WHEN / THEN: TimeFrameConfig -> RuntimeException
-        mockMvc.perform(get("/history")
+        mockMvc.perform(get("/api/candles/history")
                         .param("symbol", BTC_USD)
                         .param("interval", "INVALID_INTERVAL")
                         .param("from", String.valueOf(from))
@@ -140,7 +139,7 @@ class HistoryControllerTest extends IntegrationTestConfig {
         long to = 1_000_060L;
 
         //WHEN / THEN: TimeFrameConfig -> RuntimeException
-        mockMvc.perform(get("/history")
+        mockMvc.perform(get("/api/candles/history")
                         .param("symbol", BTC_USD)
                         .param("interval", "1m")
                         .param("from", String.valueOf(from))

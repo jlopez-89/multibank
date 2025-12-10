@@ -10,8 +10,8 @@ import com.multibank.candle.utils.IntegrationTestConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +31,7 @@ class CandleAggregationOperationTest extends IntegrationTestConfig {
     @Autowired
     private BidAskProducer producer;
 
-    @MockitoSpyBean
+    @SpyBean
     private CandleRepository candleRepository;
 
     @Autowired

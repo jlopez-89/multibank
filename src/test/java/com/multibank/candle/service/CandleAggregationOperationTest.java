@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.multibank.candle.utils.IntegrationTestConfig.BTC_USD;
 import static com.multibank.candle.utils.TestHelpers.candle;
+import static com.multibank.candle.utils.TestHelpers.oneMinuteTf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -59,7 +60,7 @@ class CandleAggregationOperationTest {
         when(candleService.findById(any(CandleId.class))).thenReturn(Optional.empty());
 
         // WHEN
-        candleAggregationOperation.onEvent(event);
+        candleAggregationOperation.createOrUpdateCandle(event, oneMinuteTf());
 
         // THEN
         var captor = ArgumentCaptor.forClass(CandleEntity.class);
@@ -95,7 +96,7 @@ class CandleAggregationOperationTest {
         when(candleService.findById(any(CandleId.class))).thenReturn(Optional.of(existing));
 
         // WHEN
-        candleAggregationOperation.onEvent(event);
+        candleAggregationOperation.createOrUpdateCandle(event, oneMinuteTf());
 
         // THEN
         ArgumentCaptor<CandleEntity> captor = ArgumentCaptor.forClass(CandleEntity.class);
@@ -127,7 +128,7 @@ class CandleAggregationOperationTest {
             var ts = baseTs + i; // all in the same minute
 
             var event = new BidAskEvent(symbol, bid, ask, ts);
-            candleAggregationOperation.onEvent(event);
+            candleAggregationOperation.createOrUpdateCandle(event, oneMinuteTf());
         }
 
         var candle = memStore.single();
@@ -164,7 +165,7 @@ class CandleAggregationOperationTest {
                 var ask = 102 + b;
                 var event = new BidAskEvent(BTC_USD, bid, ask, ts);
                 // WHEN
-                candleAggregationOperation.onEvent(event);
+                candleAggregationOperation.createOrUpdateCandle(event, oneMinuteTf());
             }
         }
 
@@ -188,9 +189,9 @@ class CandleAggregationOperationTest {
         var e3 = new BidAskEvent(symbol, 110.0, 112.0, baseTs + 50);
 
         // WHEN
-        candleAggregationOperation.onEvent(e1);
-        candleAggregationOperation.onEvent(e3);
-        candleAggregationOperation.onEvent(e2);
+        candleAggregationOperation.createOrUpdateCandle(e1, oneMinuteTf());
+        candleAggregationOperation.createOrUpdateCandle(e3, oneMinuteTf());
+        candleAggregationOperation.createOrUpdateCandle(e2, oneMinuteTf());
 
         //THEN
         var c = memStore.single();
@@ -200,49 +201,6 @@ class CandleAggregationOperationTest {
         assertThat(c.getLow()).isEqualTo((90.0 + 92.0) / 2.0);     // 91
         assertThat(c.getClose()).isEqualTo((90.0 + 92.0) / 2.0);   // 91
         assertThat(c.getVolume()).isEqualTo(3L);
-    }
-
-    @Test
-    @DisplayName("Single event with multiple timeframes → one candle per timeframe")
-    void shouldCreateOneCandlePerConfiguredTimeframe() {
-
-        // Reconfigure properties
-        var multiProps = new CandleConfigProperties();
-        multiProps.setTimeframes(List.of(
-                new TimeFrameConfig("SEC_1", "1s", 1L),
-                new TimeFrameConfig("MIN_1", "1m", 60L),
-                new TimeFrameConfig("MIN_5", "5m", 300L)
-        ));
-        candleAggregationOperation = new CandleAggregationOperation(candleService, multiProps);
-
-        var ts = alignToMinute(1_100_000L);
-        var bid = 100.0;
-        var ask = 102.0;
-        var mid = (bid + ask) / 2.0;
-
-        var memStore = setupInMemoryStore();
-
-        // WHEN: 1 event 3 timeframes
-        var event = new BidAskEvent(BTC_USD, bid, ask, ts);
-        candleAggregationOperation.onEvent(event);
-
-        // THEN: candle per timeframe
-        assertThat(memStore.size()).isEqualTo(3);
-
-        var byTimeframe = memStore
-                .all()
-                .stream()
-                .collect(Collectors.toMap(c -> c.getCandleId().getTimeframe(), Function.identity()));
-
-        assertThat(byTimeframe.keySet()).containsExactlyInAnyOrder("1s", "1m", "5m");
-
-        byTimeframe.values().forEach(c -> {
-            assertThat(c.getOpen()).isEqualTo(mid);
-            assertThat(c.getHigh()).isEqualTo(mid);
-            assertThat(c.getLow()).isEqualTo(mid);
-            assertThat(c.getClose()).isEqualTo(mid);
-            assertThat(c.getVolume()).isEqualTo(1L);
-        });
     }
 
     private static long alignToMinute(long ts) {

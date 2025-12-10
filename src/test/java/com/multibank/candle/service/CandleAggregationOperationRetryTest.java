@@ -9,8 +9,8 @@ import com.multibank.candle.utils.TestHelpers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,7 +22,7 @@ class CandleAggregationOperationRetryTest extends IntegrationTestConfig {
     @Autowired
     private CandleAggregationOperation candleAggregationOperation;
 
-    @MockitoBean
+    @MockBean
     private CandleRepository candleRepository;
 
     @Test
@@ -45,7 +45,7 @@ class CandleAggregationOperationRetryTest extends IntegrationTestConfig {
         }).when(candleRepository).save(any(CandleEntity.class));
 
         // WHEN
-        candleAggregationOperation.updateCandleWithRetry(event, TestHelpers.oneMinuteTf());
+        candleAggregationOperation.createOrUpdateCandle(event, TestHelpers.oneMinuteTf());
 
         // THEN
         verify(candleRepository, times(2)).save(any(CandleEntity.class));

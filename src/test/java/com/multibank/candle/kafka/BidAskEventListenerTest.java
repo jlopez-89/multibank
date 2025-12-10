@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
-@Testcontainers
 class BidAskEventListenerTest extends IntegrationTestConfig {
 
     @DynamicPropertySource
@@ -64,9 +62,8 @@ class BidAskEventListenerTest extends IntegrationTestConfig {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    List<CandleEntity> all1 = candleRepository.findAll();
-                    System.out.println(all1.size());
-                    return all1.size() == expectedCandles;
+                    List<CandleEntity> all = candleRepository.findAll();
+                    return all.size() == expectedCandles;
                 });
     }
 }

@@ -2,6 +2,7 @@ server:
   port: 8080
 
 spring:
+
   datasource:
     url: jdbc:postgresql://localhost:5434/multibank_db
     username: multibank
@@ -10,11 +11,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
   kafka:
     bootstrap-servers: "localhost:29092"
     listener:

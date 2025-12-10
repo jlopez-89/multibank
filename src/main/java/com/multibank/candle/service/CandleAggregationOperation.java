@@ -3,7 +3,6 @@ package com.multibank.candle.service;
 import com.multibank.candle.config.CandleConfigProperties;
 import com.multibank.candle.config.TimeFrameConfig;
 import com.multibank.candle.domain.BidAskEvent;
-import com.multibank.candle.repository.CandleRepository;
 import com.multibank.candle.repository.entity.CandleEntity;
 import com.multibank.candle.repository.entity.CandleId;
 import jakarta.persistence.OptimisticLockException;
@@ -24,34 +23,28 @@ public class CandleAggregationOperation {
     private final CandleService candleService;
     private final CandleConfigProperties properties;
 
-    public void onEvent(BidAskEvent event) {
-        for (TimeFrameConfig tf : properties.getTimeframes()) {
-            updateCandleWithRetry(event, tf);
-        }
-    }
-
     @Retryable(
             retryFor = {OptimisticLockingFailureException.class, OptimisticLockException.class},
             backoff = @Backoff(delay = 50, multiplier = 2)
     )
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateCandleWithRetry(BidAskEvent event, TimeFrameConfig tf) {
+    public void createOrUpdateCandle(BidAskEvent event, TimeFrameConfig tf) {
 
         var mid = (event.bid() + event.ask()) / 2.0;
         var candleStart = bucketStart(event.timestamp(), tf.getSeconds());
         var id = new CandleId(event.symbol(), tf.getCode(), candleStart);
-        var candle = candleService.findById(id).orElse(null);
-
-        if (candle == null) {
-            candle = new CandleEntity(id, mid, mid, mid, mid, 1L);
+        var candle = candleService.findById(id);
+        if (candle.isEmpty()) {
+            var candleEntity = new CandleEntity(id, mid, mid, mid, mid, 1L);
             log.debug("Creating new candle for symbol={} tf={} time={}", id.getSymbol(), id.getTimeframe(), id.getTime());
+            candleService.save(candleEntity);
         } else {
-            var volume = updateCandleEntity(candle, mid);
+            var candleEntity = candle.get();
+            var volume = updateCandleEntity(candleEntity, mid);
             log.debug("Updating candle for symbol={} tf={} time={} volume={}",
                     id.getSymbol(), id.getTimeframe(), id.getTime(), volume);
+            candleService.save(candleEntity);
         }
-
-        candleService.save(candle);
     }
 
     private static long updateCandleEntity(CandleEntity candle, double mid) {

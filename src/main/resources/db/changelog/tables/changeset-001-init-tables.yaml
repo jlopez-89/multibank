@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-candles
+      author: jlopez
+      changes:
+        - createTable:
+            tableName: candles
+            columns:
+              - column:
+                  name: symbol
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timeframe
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: open
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: high
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: low
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: close
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: volume
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: candles
+            columnNames: symbol,timeframe,time
+            constraintName: pk_candles
+  - changeSet:
+      id: 002-add-index
+      author: jlopez
+      changes:
+        - createIndex:
+            indexName: idx_candles_symbol_tf_time
+            tableName: candles
+            columns:
+              - column:
+                  name: symbol
+              - column:
+                  name: timeframe
+              - column:
+                  name: time

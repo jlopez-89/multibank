@@ -1,12 +1,7 @@
 spring:
-  main:
-    allow-bean-definition-overriding: true
   jpa:
     hibernate:
-      ddl-auto: update
-  sql:
-    init:
-      mode: never
+      ddl-auto: validate
 candle:
   timeframes:
     - name: MIN_1
